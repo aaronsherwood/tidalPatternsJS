@@ -15,8 +15,7 @@ Grab submodules:
 You need to serve the static HTML files to get around CORS restrictions on loading the audio:
 * If Python version is 3.X start your server by: `python3 -m http.server`
 * If Python version is 2.X start your server by: `python -m SimpleHTTPServer`
-* Navigate to http://localhost:8000/
 
 ### Examples 
-* The main index.html file uses WebDirt for the audio.
+* The main index.html file uses WebDirt for the audio. Navigate to http://localhost:8000/
 * Naviagate to http://localhost:8000/tonejs.html for the tonejs version.
