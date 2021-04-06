@@ -19,4 +19,4 @@ You need to serve the static HTML files to get around CORS restrictions on loadi
 
 ### Examples 
 * The main index.html file uses WebDirt for the audio.
-* Naviagate to /tonejs.html for the tonejs version.
+* Naviagate to http://localhost:8000/tonejs.html for the tonejs version.
