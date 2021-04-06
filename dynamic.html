@@ -14,9 +14,12 @@
 
   <body></body>
 
-  <script src="Tone.js"></script>
+  <script src="WebDirt.js"></script>
+  <script src="Graph.js"></script>
+  <script src="SampleBank.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.3.1/p5.min.js"></script>
   <script>
+    var webDirt;
     var audiogoing = false;
 
     // to have audio in the browser a user needs to trigger it
@@ -24,13 +27,13 @@
       audiogoing = !audiogoing;
     }
 
-    var player = new Tone.Player({
-        "url": "./Dirt-Samples/808bd/BD0000.WAV",
-        "autostart": false,
-        "loop": false,
-        "fadeIn": .0,
-        "fadeOut": .0
-    }).toMaster();
+    // this loads the audio library
+    window.onload = function() {
+      webDirt = new WebDirt("sampleMap.json", "Dirt-Samples", 0, function() {
+        console.log("callback from WebDirt constructor completed");
+        webDirt.initializeWebAudio();
+      })
+    }
 
     var counter = 0;
     var events;
@@ -40,8 +43,12 @@
 
     var col = 255;
     var mainCounter = 0;
+    var msg = {
+      s: "808bd"
+    };
 
     function tick() {
+
       // get the duration of the next event to trigger NOT NEEDED FOR NOW
       // var dur = events[counter].arc.end.sub(events[counter].arc.start).valueOf();
 
@@ -59,10 +66,15 @@
           counter = (counter + 1) % events.length;
           //if we want audio trigger the sample
           if (audiogoing)
-            player.start();
+            webDirt.playSample(msg);
         }
         //this is the main counter which keeps track of where we are at in the greater subdivision of the cycle, which, in this case, is 8
         mainCounter = (mainCounter + 1) % pattern.__data.slots.value;
+
+        if (mainCounter==0){
+          pattern = Pattern(pat);
+          events = pattern.query(0, 1);
+        }
         //call this function again for next time
         tick();
       }, 200);
@@ -74,14 +86,20 @@
       console.log(pattern)
       pattern.print()
       tick();
+      fill(255);
     }
 
     function draw() {
       background(col, 0, col);
       col -= 10;
       textSize(24);
+      text("Current Euclidean Pattern (will update at beginning of next cycle)\nUse mouseX: "+pat, 20, 90)
       if (!audiogoing)
         text("Click to start sound", 20, 40);
+      var s = '255('+parseInt(map(mouseX, 0, window.innerWidth, 1, 8))+',8)';
+      pat = s;
+      console.log(s);
+
     }
   </script>
 
