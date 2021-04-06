@@ -1,0 +1,90 @@
+<!docype html>
+  <html lang='en'>
+
+  <head>
+    <script src='pattern.js'></script>
+    <script src='peg-parse-query.js'></script>
+    <style>
+      body {
+        background: #000;
+        margin: 0px;
+      }
+    </style>
+  </head>
+
+  <body></body>
+
+  <script src="Tone.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.3.1/p5.min.js"></script>
+  <script>
+    var audiogoing = false;
+
+    // to have audio in the browser a user needs to trigger it
+    window.onclick = function() {
+      audiogoing = !audiogoing;
+    }
+
+    var player = new Tone.Player({
+        "url": "BD0000.WAV",
+        "autostart": false,
+        "loop": false,
+        "fadeIn": .0,
+        "fadeOut": .0
+    }).toMaster();
+
+    var prevMillis = 0;
+    var counter = 0;
+    var eigthNotes = 0;
+    var events;
+    var pat = '255(3,8)';
+    var pattern = Pattern(pat);
+    events = pattern.query(0, 1);
+
+    var col = 255;
+    var mainCounter = 0;
+
+    function tick() {
+      // get the duration of the next event to trigger
+      var dur = events[counter].arc.end.sub(events[counter].arc.start).valueOf();
+
+      //set a timeout
+      setTimeout(function() {
+        //if the start of the triggerable event * how many divisions there are (8 in this example)
+        //equals the maincounter (looping through 8 in this example)
+        //then trigger the event
+        if (events[counter].arc.start.valueOf() * pattern.__data.slots.value == mainCounter) {
+          //set the col variable to whatever number we set in pat. i.e. 255(3,8) means trigger the number 255 in a euclidean 3,8 pattern
+          col = events[counter].value.value;
+          //increase the counter to get the next sample
+          //event's length is three in this example since we're doing a 3,8 euclidean pattern
+          //so this counter will loop at 3
+          counter = (counter + 1) % events.length;
+          //if we want audio trigger the sample
+          if (audiogoing)
+            player.start();
+        }
+        //this is the main counter which keeps track of where we are at in the greater subdivision of the cycle, which, in this case, is 8
+        mainCounter = (mainCounter + 1) % pattern.__data.slots.value;
+        //call this function again for next time
+        tick();
+      }, 200);
+    }
+
+    // using P5js for the color
+    function setup() {
+      createCanvas(windowWidth, windowHeight);
+      console.log(pattern)
+      pattern.print()
+      tick();
+    }
+
+    function draw() {
+      background(col, 0, col);
+      col -= 10;
+      textSize(24);
+      if (!audiogoing)
+        text("Click to start sound", 20, 40);
+    }
+  </script>
+
+  </html>
